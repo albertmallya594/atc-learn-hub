@@ -60,8 +60,7 @@ export default function QuestionDetail() {
 
   useEffect(() => {
     load();
-    if (id) supabase.rpc("increment_view", { qid: id }).then(() => {}); // optional, ignore failure
-    // increment view (simple optimistic update)
+    // increment view count
     if (id) supabase.from("questions").select("view_count").eq("id", id).maybeSingle().then(({ data }) => {
       if (data) supabase.from("questions").update({ view_count: (data.view_count ?? 0) + 1 }).eq("id", id);
     });
