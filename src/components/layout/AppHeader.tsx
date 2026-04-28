@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { initials } from "@/lib/format";
+import atcLogo from "@/assets/atc-logo.png";
 
 export function AppHeader() {
   const { user, profile, signOut } = useAuth();
@@ -42,6 +43,10 @@ export function AppHeader() {
   return (
     <header className="sticky top-0 z-40 flex h-16 items-center gap-3 border-b border-border bg-background/85 px-4 backdrop-blur-md">
       <SidebarTrigger className="text-foreground" />
+      <Link to="/" className="flex items-center gap-2 md:hidden" aria-label="ATC Forum home">
+        <img src={atcLogo} alt="ATC Department of ICT logo" className="h-8 w-8 object-contain rounded-md bg-white/95 p-0.5" />
+        <span className="font-display text-sm">ATC Forum</span>
+      </Link>
       <form onSubmit={submit} className="relative hidden flex-1 max-w-xl md:block">
         <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
         <Input
