@@ -5,7 +5,7 @@ import { QuestionsFeed } from "@/components/QuestionsFeed";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useAuth } from "@/hooks/useAuth";
-import { ArrowRight, Sparkles, Users, BookOpen, MessageSquareQuote } from "lucide-react";
+import { ArrowRight, ScanSearch, Users, BookOpen, MessageSquareQuote } from "lucide-react";
 
 export default function Index() {
   const { user } = useAuth();
@@ -35,7 +35,7 @@ export default function Index() {
       <section className="relative overflow-hidden rounded-2xl hero-gradient text-primary-foreground p-8 lg:p-12 shadow-[var(--shadow-elegant)]">
         <div className="relative z-10 max-w-2xl space-y-5 animate-fade-in">
           <div className="inline-flex items-center gap-2 rounded-full bg-gold/15 border border-gold/30 px-3 py-1 text-xs text-gold">
-            <Sparkles className="h-3.5 w-3.5" /> Built for ATC students
+            <ScanSearch className="h-3.5 w-3.5" /> Built for ATC students
           </div>
           <h1 className="font-display text-4xl lg:text-5xl leading-tight">
             Academic answers,<br /><span className="text-gold">always within reach.</span>
