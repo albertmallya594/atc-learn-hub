@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { QuestionCard, QuestionRow } from "./QuestionCard";
+import atcLogo from "@/assets/atc-logo.png";
 
 export interface FeedFilters {
   search?: string;
@@ -78,7 +79,8 @@ export function QuestionsFeed({ filters }: { filters: FeedFilters }) {
 
   if (rows.length === 0) {
     return (
-      <div className="card-elegant p-10 text-center">
+      <div className="card-elegant p-10 text-center flex flex-col items-center">
+        <img src={atcLogo} alt="ATC Department of ICT logo" className="h-16 w-16 object-contain opacity-60 mb-4" />
         <p className="font-display text-lg text-foreground">No questions yet</p>
         <p className="text-sm text-muted-foreground mt-1">Be the first to start the discussion.</p>
       </div>

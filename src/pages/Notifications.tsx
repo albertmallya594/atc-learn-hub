@@ -5,6 +5,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { formatRelative } from "@/lib/format";
 import { Bell, CheckCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import atcLogo from "@/assets/atc-logo.png";
 
 interface Notif { id: string; type: string; message: string; link: string | null; is_read: boolean; created_at: string; }
 
@@ -34,7 +35,12 @@ export default function Notifications() {
         <Button variant="outline" size="sm" onClick={markAll}><CheckCheck className="h-4 w-4 mr-2" /> Mark all read</Button>
       </header>
       <div className="space-y-2">
-        {items.length === 0 && <div className="card-elegant p-8 text-center text-muted-foreground">You're all caught up.</div>}
+        {items.length === 0 && (
+          <div className="card-elegant p-8 text-center text-muted-foreground flex flex-col items-center">
+            <img src={atcLogo} alt="ATC Department of ICT logo" className="h-14 w-14 object-contain opacity-60 mb-3" />
+            You're all caught up.
+          </div>
+        )}
         {items.map((n) => (
           <Link key={n.id} to={n.link || "#"}
             onClick={async () => { if (!n.is_read) await supabase.from("notifications").update({ is_read: true }).eq("id", n.id); }}
