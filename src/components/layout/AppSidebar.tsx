@@ -7,6 +7,7 @@ import { Home, MessageSquareQuote, Tag, Users, ShieldCheck, BookOpen, Bell, User
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
+import atcLogo from "@/assets/atc-logo.png";
 
 interface Category { id: string; name: string; slug: string; }
 
@@ -36,7 +37,7 @@ export function AppSidebar() {
     <Sidebar collapsible="icon" className="border-sidebar-border">
       <SidebarContent className="bg-sidebar">
         <div className="flex items-center gap-2 px-4 py-5 border-b border-sidebar-border">
-          <div className="grid h-9 w-9 place-items-center rounded-md bg-gold text-gold-foreground font-display font-bold">A</div>
+          <img src={atcLogo} alt="ATC Department of ICT logo" className="h-10 w-10 object-contain rounded-md bg-white/95 p-0.5" />
           {!collapsed && (
             <div className="flex flex-col leading-tight">
               <span className="font-display text-sidebar-foreground text-base">ATC Forum</span>

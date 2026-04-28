@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { toast } from "sonner";
-import { GraduationCap } from "lucide-react";
+import atcLogo from "@/assets/atc-logo.png";
 
 const signUpSchema = z.object({
   fullName: z.string().trim().min(2, "Enter your full name").max(100),
@@ -81,11 +81,11 @@ export default function Auth() {
     <div className="min-h-screen grid lg:grid-cols-2">
       <div className="hidden lg:flex relative hero-gradient text-primary-foreground p-12 flex-col justify-between">
         <Link to="/" className="flex items-center gap-3 font-display text-xl">
-          <div className="grid h-10 w-10 place-items-center rounded-md bg-gold text-gold-foreground font-bold">A</div>
+          <img src={atcLogo} alt="ATC logo" className="h-11 w-11 object-contain rounded-md bg-white p-0.5" />
           ATC Forum
         </Link>
         <div className="space-y-6 max-w-md">
-          <GraduationCap className="h-12 w-12 text-gold" />
+          <img src={atcLogo} alt="ATC Department of ICT logo" className="h-20 w-20 object-contain" />
           <h1 className="font-display text-4xl leading-tight">
             Where ATC students think, ask, and grow — together.
           </h1>
@@ -99,7 +99,7 @@ export default function Auth() {
       <div className="flex items-center justify-center p-6 bg-background">
         <div className="w-full max-w-md space-y-6">
           <div className="lg:hidden flex items-center gap-2 mb-6">
-            <div className="grid h-9 w-9 place-items-center rounded-md bg-primary text-primary-foreground font-display font-bold">A</div>
+            <img src={atcLogo} alt="ATC logo" className="h-10 w-10 object-contain" />
             <span className="font-display text-lg">ATC Forum</span>
           </div>
           <div>
