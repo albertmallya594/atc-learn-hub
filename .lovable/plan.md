@@ -1,21 +1,20 @@
-# Password show/hide toggle
+# Improve Ask Question page
 
-Add an eye icon inside every password input so users can toggle visibility.
+## Changes
 
-## Approach
+1. **Remove the Tags field** from `src/pages/AskQuestion.tsx` (label, input, and the `tags` parsing logic). Insert questions with `tags: []`.
 
-Create a small reusable `PasswordInput` component at `src/components/ui/password-input.tsx` that wraps the existing `Input` and adds an `Eye` / `EyeOff` lucide button positioned inside the field. It forwards all standard input props (id, name, required, minLength, autoComplete, placeholder, etc.) so it's a drop-in replacement.
+2. **Redesign the question composition area** for a more polished, focused writing experience:
+   - Wrap the form in a cleaner two-section card: a compact "Meta" row (Title + Category side-by-side on desktop, stacked on mobile) and a large "Details" section for the body.
+   - Make the body `Textarea` taller (min ~320px), with a subtle inner background, monospace-friendly padding, and a live character counter (e.g. `120 / 8000`).
+   - Add a small helper toolbar above the textarea with formatting hints (bold, code, link — as plain markdown hint chips, not active buttons) and a "Markdown supported" note.
+   - Replace the plain header with a richer intro card: icon + title + 3 short tips ("Be specific", "Show what you tried", "Explain expected outcome").
+   - Sticky footer action bar inside the form: Cancel (ghost) on the left, Post question (primary) on the right, with a subtle top border.
+   - Use semantic tokens only (`bg-card`, `border-border`, `text-muted-foreground`, `text-primary`).
 
-## Where it gets used
+## Technical notes
 
-Replace `<Input type="password" ... />` with `<PasswordInput ... />` in:
-- `src/pages/Auth.tsx` (sign-in password, sign-up password, confirm password)
-- `src/pages/ResetPassword.tsx` (new password)
-
-## Technical
-
-- `forwardRef<HTMLInputElement>` so refs/forms keep working.
-- Internal `useState` for `visible`; toggles `type` between `password` and `text`.
-- Button is `type="button"` (so it doesn't submit the form), absolutely positioned right inside a relative wrapper, with `aria-label="Show password" / "Hide password"`.
-- Adds right padding (`pr-10`) to the input so text doesn't sit under the icon.
-- Uses semantic tokens (`text-muted-foreground`, `hover:text-foreground`) — no hard-coded colors.
+- File touched: `src/pages/AskQuestion.tsx` only.
+- Remove `tags` from the zod schema and from the insert payload (pass empty array since the column is `not null` with default `{}`).
+- Add `useState` for body length to drive the counter.
+- No new dependencies; use existing lucide icons (`Lightbulb`, `Bold`, `Code`, `Link`).
