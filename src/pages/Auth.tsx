@@ -54,6 +54,8 @@ export default function Auth() {
   const { user } = useAuth();
   const [busy, setBusy] = useState(false);
 
+  const [accountType, setAccountType] = useState<AccountType>("atc_student");
+
   if (user) {
     navigate("/", { replace: true });
   }
@@ -63,21 +65,45 @@ export default function Auth() {
   const onSignUp = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const fd = new FormData(e.currentTarget);
-    const parsed = signUpSchema.safeParse({
-      fullName: fd.get("fullName"), email: fd.get("email"), password: fd.get("password"),
-    });
+    const raw: Record<string, any> = { accountType };
+    fd.forEach((v, k) => { raw[k] = typeof v === "string" ? v : undefined; });
+
+    const parsed = signUpSchema.safeParse(raw);
     if (!parsed.success) { toast.error(parsed.error.issues[0].message); return; }
+    const data = parsed.data;
+
+    const email = "email" in data ? data.email : synthEmail(data.fullName);
+
     setBusy(true);
-    const { error } = await supabase.auth.signUp({
-      email: parsed.data.email,
-      password: parsed.data.password,
+    const { data: signUpData, error } = await supabase.auth.signUp({
+      email,
+      password: data.password,
       options: {
         emailRedirectTo: `${window.location.origin}/`,
-        data: { full_name: parsed.data.fullName },
+        data: { full_name: data.fullName },
       },
     });
+    if (error) { setBusy(false); toast.error(error.message); return; }
+
+    const userId = signUpData.user?.id;
+    if (userId) {
+      const profileUpdate: Record<string, any> = {
+        account_type: data.accountType,
+        phone: data.phone,
+        full_name: data.fullName,
+      };
+      if ("department" in data) profileUpdate.department = data.department;
+      if ("admissionNumber" in data) profileUpdate.admission_number = data.admissionNumber;
+      if ("programme" in data) profileUpdate.programme = data.programme;
+      if ("institutionName" in data) profileUpdate.institution_name = data.institutionName;
+      if ("organization" in data) profileUpdate.organization = data.organization;
+      if ("region" in data) profileUpdate.region = data.region;
+      if ("purpose" in data && data.purpose) profileUpdate.purpose = data.purpose;
+
+      await supabase.from("profiles").update(profileUpdate).eq("id", userId);
+    }
+
     setBusy(false);
-    if (error) { toast.error(error.message); return; }
     toast.success("Account created — welcome to ATC Forum!");
     navigate(from, { replace: true });
   };
