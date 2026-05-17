@@ -79,6 +79,7 @@ export default function Auth() {
   const [busy, setBusy] = useState(false);
 
   const [accountType, setAccountType] = useState<AccountType | null>(null);
+  const [department, setDepartment] = useState<string>("");
   const [step, setStep] = useState<1 | 2>(1);
 
   if (user) {
