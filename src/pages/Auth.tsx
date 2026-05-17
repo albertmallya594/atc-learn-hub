@@ -100,7 +100,7 @@ export default function Auth() {
       if ("region" in data) profileUpdate.region = data.region;
       if ("purpose" in data && data.purpose) profileUpdate.purpose = data.purpose;
 
-      await supabase.from("profiles").update(profileUpdate).eq("id", userId);
+      await supabase.from("profiles").update(profileUpdate as any).eq("id", userId);
     }
 
     setBusy(false);
