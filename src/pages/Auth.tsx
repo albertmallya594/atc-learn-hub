@@ -7,18 +7,46 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
 import atcLogo from "@/assets/atc-logo.png";
 
-const signUpSchema = z.object({
+type AccountType = "atc_student" | "atc_staff" | "new_student" | "external_student" | "guest";
+
+const ACCOUNT_TYPES: { value: AccountType; label: string }[] = [
+  { value: "atc_student", label: "ATC Student" },
+  { value: "atc_staff", label: "ATC Staff" },
+  { value: "new_student", label: "New Student (applying)" },
+  { value: "external_student", label: "Student from Another Institution" },
+  { value: "guest", label: "Guest from Outside" },
+];
+
+const baseFields = {
   fullName: z.string().trim().min(2, "Enter your full name").max(100),
-  email: z.string().trim().email("Invalid email").max(255),
+  phone: z.string().trim().min(7, "Enter your phone number").max(30),
   password: z.string().min(8, "Min 8 characters").max(72),
-});
+  confirmPassword: z.string(),
+};
+
+const emailField = z.string().trim().email("Invalid email").max(255);
+const req = (msg: string) => z.string().trim().min(1, msg).max(150);
+
+const signUpSchema = z.discriminatedUnion("accountType", [
+  z.object({ accountType: z.literal("atc_student"), ...baseFields, email: emailField, department: req("Department required") }),
+  z.object({ accountType: z.literal("atc_staff"), ...baseFields, email: emailField, department: req("Department required") }),
+  z.object({ accountType: z.literal("new_student"), ...baseFields, admissionNumber: req("Index/Admission number required"), programme: req("Programme required") }),
+  z.object({ accountType: z.literal("external_student"), ...baseFields, institutionName: req("Institution required"), admissionNumber: req("Admission/Student ID required"), programme: req("Course/Programme required") }),
+  z.object({ accountType: z.literal("guest"), ...baseFields, organization: req("Organization required"), region: req("Region/Location required"), purpose: z.string().trim().max(300).optional() }),
+]).refine((d) => d.password === d.confirmPassword, { message: "Passwords do not match", path: ["confirmPassword"] });
+
 const signInSchema = z.object({
   email: z.string().trim().email("Invalid email"),
   password: z.string().min(1, "Required"),
 });
+
+const slugify = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "").slice(0, 30) || "user";
+const synthEmail = (fullName: string) =>
+  `${slugify(fullName)}-${Math.random().toString(36).slice(2, 8)}@atc-forum.local`;
 
 export default function Auth() {
   const navigate = useNavigate();
