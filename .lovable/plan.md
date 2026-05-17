@@ -1,21 +1,32 @@
-# Fix "No questions yet" on public feed
+# Best-answer highlighting on QuestionDetail
 
-## Problem
+## Goal
 
-The home and `/questions` pages always show "No questions yet" even though questions exist. The PostgREST query in `QuestionsFeed` tries to embed `votes!votes_target_id_fkey`, but the `votes` table has no foreign key to `questions` (votes are polymorphic — `target_id` points to either a question or an answer). The request returns HTTP 400 and the feed renders the empty state.
+Make the "best" answer visually stand out on a question page, using a clear, predictable rule that combines acceptance and votes.
 
-The same issue breaks answers loading on `QuestionDetail` (embedded `votes` on `answers`).
+## Rule
 
-## Fix
+Pick at most one "best answer" per question:
 
-Stop embedding `votes` through a non-existent FK. Fetch votes in a second query and merge in JS.
+1. If any answer is `is_accepted = true`, that is the best answer.
+2. Otherwise, the answer with the highest vote score wins, **only if** its score is `>= 2` and strictly greater than every other answer's score. Ties or low-vote answers get no highlight.
 
-### `src/components/QuestionsFeed.tsx`
-- Remove `votes:votes!votes_target_id_fkey(...)` from the select.
-- After loading questions, run a second query: `supabase.from('votes').select('target_id,value').eq('target_type','question').in('target_id', ids)`.
-- Aggregate up/down per `target_id` and merge into each row's `vote_count`.
+This way unanswered/low-signal questions stay neutral, and we never fight the asker's explicit accept choice.
 
-### `src/pages/QuestionDetail.tsx`
-- Same treatment for the answers query: drop the embedded `votes`, fetch votes for the answer ids in a follow-up query, and merge counts + the current user's vote.
+## Visual treatment
 
-No schema or RLS changes needed; `votes` already has public SELECT.
+In `src/pages/QuestionDetail.tsx`, for the best answer card:
+
+- Add a gold/success ribbon at the top: small badge with a trophy icon and label
+  - "Accepted answer" when accepted
+  - "Top voted answer" when chosen by votes
+- Stronger ring + subtle gradient background using existing tokens (`success` for accepted, `gold` for top-voted) so it's distinct from regular cards.
+- Keep the existing accepted check icon behavior; just upgrade the surrounding card.
+
+Non-best answers keep the current neutral card styling. The accepted card already has a faint ring — this replaces it with the richer treatment.
+
+## Technical notes
+
+- Compute `bestAnswerId` in `QuestionDetail` after `answers` is loaded, using the vote tallies already available via the per-answer `votes` arrays.
+- Pass an `isBest` + `reason` ("accepted" | "voted") into the answer card render block and switch classes/ribbon accordingly.
+- No schema, RLS, or query changes.
