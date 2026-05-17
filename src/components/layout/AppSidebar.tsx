@@ -11,12 +11,12 @@ import atcLogo from "@/assets/atc-logo.png";
 
 interface Category { id: string; name: string; slug: string; }
 
-const main = [
+const baseMain = [
   { title: "Home", url: "/", icon: Home },
   { title: "Questions", url: "/questions", icon: MessageSquareQuote },
   { title: "Tags", url: "/tags", icon: Tag },
-  { title: "Members", url: "/members", icon: Users },
 ];
+const adminMain = [{ title: "Members", url: "/members", icon: Users }];
 
 export function AppSidebar() {
   const { state } = useSidebar();
@@ -62,7 +62,7 @@ export function AppSidebar() {
           <SidebarGroupLabel className="text-sidebar-foreground/50">Browse</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {main.map((item) => (
+              {[...baseMain, ...(isAdmin ? adminMain : [])].map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild isActive={isActive(item.url)}>
                     <NavLink to={item.url} className="flex items-center gap-2 text-sidebar-foreground hover:bg-sidebar-accent">
