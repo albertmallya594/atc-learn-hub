@@ -66,7 +66,8 @@ export default function Auth() {
   const { user } = useAuth();
   const [busy, setBusy] = useState(false);
 
-  const [accountType, setAccountType] = useState<AccountType>("atc_student");
+  const [accountType, setAccountType] = useState<AccountType | null>(null);
+  const [step, setStep] = useState<1 | 2>(1);
 
   if (user) {
     navigate("/", { replace: true });
@@ -197,65 +198,95 @@ export default function Auth() {
             </TabsContent>
 
             <TabsContent value="signup">
-              <form key={accountType} onSubmit={onSignUp} className="space-y-4 pt-4">
-                <div className="space-y-2">
-                  <Label>I am signing up as</Label>
-                  <Select value={accountType} onValueChange={(v) => setAccountType(v as AccountType)}>
-                    <SelectTrigger><SelectValue /></SelectTrigger>
-                    <SelectContent>
-                      {ACCOUNT_TYPES.map((t) => (
-                        <SelectItem key={t.value} value={t.value}>{t.label}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+              {step === 1 || !accountType ? (
+                <div className="space-y-4 pt-4">
+                  <div className="space-y-2">
+                    <Label>I am signing up as</Label>
+                    <Select value={accountType ?? undefined} onValueChange={(v) => setAccountType(v as AccountType)}>
+                      <SelectTrigger><SelectValue placeholder="Choose account type" /></SelectTrigger>
+                      <SelectContent>
+                        {ACCOUNT_TYPES.map((t) => (
+                          <SelectItem key={t.value} value={t.value}>{t.label}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <p className="text-xs text-muted-foreground">Pick the role that matches you — the next step asks for the right details.</p>
+                  </div>
+                  <Button
+                    type="button"
+                    disabled={!accountType}
+                    onClick={() => setStep(2)}
+                    className="w-full"
+                  >
+                    Continue
+                  </Button>
                 </div>
+              ) : (
+                <form key={accountType} onSubmit={onSignUp} className="space-y-4 pt-4">
+                  <div className="flex items-center justify-between rounded-md border bg-muted/40 px-3 py-2 text-sm">
+                    <span>
+                      Signing up as{" "}
+                      <strong>{ACCOUNT_TYPES.find((t) => t.value === accountType)?.label}</strong>
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => setStep(1)}
+                      className="text-xs text-accent hover:underline"
+                    >
+                      Change
+                    </button>
+                  </div>
 
-                <Field name="fullName" label="Full name" placeholder="Jane Mwangi" maxLength={100} />
+                  <Field name="fullName" label="Full name" placeholder="Jane Mwangi" maxLength={100} />
 
-                {(accountType === "atc_student" || accountType === "atc_staff") && (
-                  <>
-                    <Field name="email" type="email" label="Email" placeholder="you@atc.ac.tz" autoComplete="email" />
-                    <Field name="department" label="Department" placeholder="e.g. ICT" />
-                  </>
-                )}
+                  {(accountType === "atc_student" || accountType === "atc_staff") && (
+                    <>
+                      <Field name="email" type="email" label="Email" placeholder="you@atc.ac.tz" autoComplete="email" />
+                      <Field name="department" label="Department" placeholder="e.g. ICT" />
+                    </>
+                  )}
 
-                {accountType === "new_student" && (
-                  <>
-                    <Field name="admissionNumber" label="Form Four/Six Index or Admission Number" />
-                    <Field name="programme" label="Programme Applied" />
-                  </>
-                )}
+                  {accountType === "new_student" && (
+                    <>
+                      <Field name="admissionNumber" label="Form Four/Six Index or Admission Number" />
+                      <Field name="programme" label="Programme Applied" />
+                    </>
+                  )}
 
-                {accountType === "external_student" && (
-                  <>
-                    <Field name="institutionName" label="Institution / College / University" />
-                    <Field name="admissionNumber" label="Admission Number or Student ID" />
-                    <Field name="programme" label="Course / Programme" />
-                  </>
-                )}
+                  {accountType === "external_student" && (
+                    <>
+                      <Field name="institutionName" label="Institution / College / University" />
+                      <Field name="admissionNumber" label="Admission Number or Student ID" />
+                      <Field name="programme" label="Course / Programme" />
+                    </>
+                  )}
 
-                {accountType === "guest" && (
-                  <>
-                    <Field name="organization" label="Place of Work / Organization" />
-                    <Field name="region" label="Region or Location" />
-                    <Field name="purpose" label="Purpose of Access (optional)" required={false} />
-                  </>
-                )}
+                  {accountType === "guest" && (
+                    <>
+                      <Field name="organization" label="Place of Work / Organization" />
+                      <Field name="region" label="Region or Location" />
+                      <Field name="purpose" label="Purpose of Access (optional)" required={false} />
+                    </>
+                  )}
 
-                <Field name="phone" type="tel" label="Phone number" placeholder="+255 ..." autoComplete="tel" />
+                  <Field name="phone" type="tel" label="Phone number" placeholder="+255 ..." autoComplete="tel" />
 
-                <div className="space-y-2">
-                  <Label htmlFor="su-password">Password</Label>
-                  <Input id="su-password" name="password" type="password" required minLength={8} autoComplete="new-password" />
-                  <p className="text-xs text-muted-foreground">At least 8 characters.</p>
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="su-confirm">Confirm password</Label>
-                  <Input id="su-confirm" name="confirmPassword" type="password" required minLength={8} autoComplete="new-password" />
-                </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="su-password">Password</Label>
+                    <Input id="su-password" name="password" type="password" required minLength={8} autoComplete="new-password" />
+                    <p className="text-xs text-muted-foreground">At least 8 characters.</p>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="su-confirm">Confirm password</Label>
+                    <Input id="su-confirm" name="confirmPassword" type="password" required minLength={8} autoComplete="new-password" />
+                  </div>
 
-                <Button type="submit" disabled={busy} className="w-full">{busy ? "Creating…" : "Create account"}</Button>
-              </form>
+                  <div className="flex gap-2">
+                    <Button type="button" variant="outline" onClick={() => setStep(1)} className="flex-1">Back</Button>
+                    <Button type="submit" disabled={busy} className="flex-1">{busy ? "Creating…" : "Create account"}</Button>
+                  </div>
+                </form>
+              )}
             </TabsContent>
           </Tabs>
 
