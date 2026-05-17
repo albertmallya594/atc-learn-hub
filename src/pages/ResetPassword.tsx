@@ -39,7 +39,7 @@ export default function ResetPassword() {
         <p className="text-sm text-muted-foreground">Enter a new password for your account.</p>
         <div className="space-y-2">
           <Label htmlFor="pw">New password</Label>
-          <Input id="pw" name="password" type="password" required minLength={8} autoComplete="new-password" />
+          <PasswordInput id="pw" name="password" required minLength={8} autoComplete="new-password" />
         </div>
         <Button type="submit" disabled={busy || !ready} className="w-full">
           {busy ? "Updating…" : ready ? "Update password" : "Verifying link…"}
