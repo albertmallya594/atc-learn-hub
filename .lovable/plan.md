@@ -1,17 +1,21 @@
-# Toast feedback on vote
+# Password show/hide toggle
 
-Add an instant toast after a successful upvote/downvote/un-vote in `src/components/VoteControl.tsx`, showing the action and the new net score. Errors already toast — keep that.
+Add an eye icon inside every password input so users can toggle visibility.
 
-## Behavior
+## Approach
 
-After the optimistic update succeeds (no error from `castVote`):
-- Upvote added → `toast.success("Upvoted · net {newCount}")`
-- Downvote added → `toast.success("Downvoted · net {newCount}")`
-- Vote removed (clicked same arrow twice) → `toast("Vote removed · net {newCount}")`
-- Switched direction → same as adding the new direction.
+Create a small reusable `PasswordInput` component at `src/components/ui/password-input.tsx` that wraps the existing `Input` and adds an `Eye` / `EyeOff` lucide button positioned inside the field. It forwards all standard input props (id, name, required, minLength, autoComplete, placeholder, etc.) so it's a drop-in replacement.
 
-Toasts are short (`duration: 1500`) so rapid clicks don't pile up.
+## Where it gets used
+
+Replace `<Input type="password" ... />` with `<PasswordInput ... />` in:
+- `src/pages/Auth.tsx` (sign-in password, sign-up password, confirm password)
+- `src/pages/ResetPassword.tsx` (new password)
 
 ## Technical
 
-Inside `click()` in `VoteControl.tsx`, after the `if (error)` branch, compute the new count (`count + delta`) and the action label from `prev`/`next`, then call the appropriate `toast` variant. No new deps, no schema changes, no UI structure changes.
+- `forwardRef<HTMLInputElement>` so refs/forms keep working.
+- Internal `useState` for `visible`; toggles `type` between `password` and `text`.
+- Button is `type="button"` (so it doesn't submit the form), absolutely positioned right inside a relative wrapper, with `aria-label="Show password" / "Hide password"`.
+- Adds right padding (`pr-10`) to the input so text doesn't sit under the icon.
+- Uses semantic tokens (`text-muted-foreground`, `hover:text-foreground`) — no hard-coded colors.
