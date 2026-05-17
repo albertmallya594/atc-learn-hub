@@ -6,7 +6,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { VoteControl } from "@/components/VoteControl";
-import { CheckCircle2, Trash2, MessageCircle } from "lucide-react";
+import { CheckCircle2, Trash2, MessageCircle, Trophy } from "lucide-react";
 import { initials, formatRelative } from "@/lib/format";
 import { toast } from "sonner";
 
