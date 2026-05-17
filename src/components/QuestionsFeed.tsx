@@ -24,8 +24,7 @@ export function QuestionsFeed({ filters }: { filters: FeedFilters }) {
           id,title,body,tags,view_count,created_at,
           author:profiles!questions_author_id_fkey(full_name,username),
           category:categories(name,slug),
-          answers(id,is_accepted),
-          votes:votes!votes_target_id_fkey(value,target_type)
+          answers(id,is_accepted)
         `)
         .limit(50);
       if (filters.search) query = query.ilike("title", `%${filters.search}%`);
