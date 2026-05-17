@@ -66,7 +66,8 @@ export default function Auth() {
   const { user } = useAuth();
   const [busy, setBusy] = useState(false);
 
-  const [accountType, setAccountType] = useState<AccountType>("atc_student");
+  const [accountType, setAccountType] = useState<AccountType | null>(null);
+  const [step, setStep] = useState<1 | 2>(1);
 
   if (user) {
     navigate("/", { replace: true });
