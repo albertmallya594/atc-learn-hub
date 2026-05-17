@@ -1,28 +1,21 @@
-# Public Questions + Admin-only Members
+# Fix "No questions yet" on public feed
 
-## Goals
-1. Ensure posted questions are visible to everyone (including signed-out visitors) on the public feed.
-2. Hide the "Active members" area and member list from regular users — only admins can see them.
+## Problem
 
-## Changes
+The home and `/questions` pages always show "No questions yet" even though questions exist. The PostgREST query in `QuestionsFeed` tries to embed `votes!votes_target_id_fkey`, but the `votes` table has no foreign key to `questions` (votes are polymorphic — `target_id` points to either a question or an answer). The request returns HTTP 400 and the feed renders the empty state.
 
-### 1. Public questions feed
-- Verify `QuestionsFeed` works for anonymous users (RLS already allows public SELECT on questions/answers/votes/profiles/categories — confirmed).
-- On `src/pages/Index.tsx`:
-  - Remove the "Active members" stat card from the stats row for non-admins. Replace with a 2-column layout (Questions, Answers) for regular users; keep 3 columns for admins.
-- Confirm the Latest Questions feed renders for signed-out users (no auth guard needed — already public).
+The same issue breaks answers loading on `QuestionDetail` (embedded `votes` on `answers`).
 
-### 2. Hide Members from non-admins
-- `src/components/layout/AppSidebar.tsx`: hide the "Members" nav link unless `isAdmin`.
-- `src/App.tsx`: wrap `/members` route in `<ProtectedRoute adminOnly>` so direct URL access redirects non-admins.
-- `src/pages/Index.tsx`: hide the "Active members" stat for non-admins (see above).
+## Fix
 
-## Technical notes
-- No database/RLS changes needed — questions are already publicly readable.
-- `ProtectedRoute adminOnly` already exists and redirects non-admins to `/`.
-- `useAuth()` exposes `isAdmin` for conditional rendering.
+Stop embedding `votes` through a non-existent FK. Fetch votes in a second query and merge in JS.
 
-## Files touched
-- src/App.tsx
-- src/components/layout/AppSidebar.tsx
-- src/pages/Index.tsx
+### `src/components/QuestionsFeed.tsx`
+- Remove `votes:votes!votes_target_id_fkey(...)` from the select.
+- After loading questions, run a second query: `supabase.from('votes').select('target_id,value').eq('target_type','question').in('target_id', ids)`.
+- Aggregate up/down per `target_id` and merge into each row's `vote_count`.
+
+### `src/pages/QuestionDetail.tsx`
+- Same treatment for the answers query: drop the embedded `votes`, fetch votes for the answer ids in a follow-up query, and merge counts + the current user's vote.
+
+No schema or RLS changes needed; `votes` already has public SELECT.
