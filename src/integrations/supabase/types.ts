@@ -168,36 +168,63 @@ export type Database = {
       }
       profiles: {
         Row: {
+          account_type: string | null
+          admission_number: string | null
           avatar_url: string | null
           bio: string | null
           created_at: string
+          department: string | null
           full_name: string
           id: string
+          institution_name: string | null
+          organization: string | null
+          phone: string | null
           program: string | null
+          programme: string | null
+          purpose: string | null
+          region: string | null
           reputation: number
           updated_at: string
           username: string | null
           year_of_study: number | null
         }
         Insert: {
+          account_type?: string | null
+          admission_number?: string | null
           avatar_url?: string | null
           bio?: string | null
           created_at?: string
+          department?: string | null
           full_name?: string
           id: string
+          institution_name?: string | null
+          organization?: string | null
+          phone?: string | null
           program?: string | null
+          programme?: string | null
+          purpose?: string | null
+          region?: string | null
           reputation?: number
           updated_at?: string
           username?: string | null
           year_of_study?: number | null
         }
         Update: {
+          account_type?: string | null
+          admission_number?: string | null
           avatar_url?: string | null
           bio?: string | null
           created_at?: string
+          department?: string | null
           full_name?: string
           id?: string
+          institution_name?: string | null
+          organization?: string | null
+          phone?: string | null
           program?: string | null
+          programme?: string | null
+          purpose?: string | null
+          region?: string | null
           reputation?: number
           updated_at?: string
           username?: string | null
