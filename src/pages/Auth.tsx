@@ -255,7 +255,19 @@ export default function Auth() {
                   {(accountType === "atc_student" || accountType === "atc_staff") && (
                     <>
                       <Field name="email" type="email" label="Email" placeholder="you@atc.ac.tz" autoComplete="email" />
-                      <Field name="department" label="Department" placeholder="e.g. ICT" />
+                      <div className="space-y-2">
+                        <Label>Department</Label>
+                        <Select value={department} onValueChange={setDepartment}>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Choose your department" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {DEPARTMENTS.map((d) => (
+                              <SelectItem key={d} value={d}>{d}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
                     </>
                   )}
 
