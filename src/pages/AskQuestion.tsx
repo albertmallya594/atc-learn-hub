@@ -8,30 +8,45 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { toast } from "sonner";
-import { Lightbulb, Bold, Code, Link as LinkIcon, Sparkles } from "lucide-react";
+import { Lightbulb, Bold, Code, Link as LinkIcon, Sparkles, Building2 } from "lucide-react";
 
 const schema = z.object({
   title: z.string().trim().min(10, "Title must be at least 10 chars").max(200),
   body: z.string().trim().min(20, "Provide more detail (min 20 chars)").max(8000),
   category_id: z.string().uuid("Pick a category"),
+  department: z.string().min(1, "Pick a department"),
 });
 
 interface Category { id: string; name: string; }
 
+const DEPARTMENTS = [
+  { id: "information-technology", name: "Information Technology" },
+  { id: "computer-science", name: "Computer Science" },
+  { id: "software-engineering", name: "Software Engineering" },
+  { id: "networking", name: "Networking & Cybersecurity" },
+  { id: "data-science", name: "Data Science" },
+  { id: "other", name: "Other" },
+];
+
 const MAX_BODY = 8000;
 
 export default function AskQuestion() {
-  const { user } = useAuth();
+  const { user, profile } = useAuth();
   const navigate = useNavigate();
   const [cats, setCats] = useState<Category[]>([]);
   const [busy, setBusy] = useState(false);
   const [categoryId, setCategoryId] = useState<string>("");
+  const [department, setDepartment] = useState<string>("");
   const [bodyLen, setBodyLen] = useState(0);
 
   useEffect(() => {
     supabase.from("categories").select("id,name").order("name").then(({ data }) => data && setCats(data));
   }, []);
+
+  const initials = (profile?.full_name || user?.email || "U")
+    .split(" ").map((s) => s[0]).join("").slice(0, 2).toUpperCase();
 
   const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -41,6 +56,7 @@ export default function AskQuestion() {
       title: fd.get("title"),
       body: fd.get("body"),
       category_id: categoryId,
+      department,
     });
     if (!parsed.success) { toast.error(parsed.error.issues[0].message); return; }
 
@@ -50,7 +66,7 @@ export default function AskQuestion() {
       category_id: parsed.data.category_id,
       title: parsed.data.title,
       body: parsed.data.body,
-      tags: [],
+      tags: [`dept:${parsed.data.department}`],
     }).select("id").single();
     setBusy(false);
     if (error) { toast.error(error.message); return; }
@@ -76,11 +92,36 @@ export default function AskQuestion() {
       </div>
 
       <form onSubmit={onSubmit} className="card-elegant overflow-hidden">
+        <div className="px-6 py-4 flex items-center gap-3 border-b border-border bg-muted/20">
+          <Avatar className="size-9">
+            {profile?.avatar_url && <AvatarImage src={profile.avatar_url} alt={profile.full_name} />}
+            <AvatarFallback className="bg-primary/10 text-primary text-xs">{initials}</AvatarFallback>
+          </Avatar>
+          <div className="min-w-0 flex-1">
+            <p className="text-xs text-muted-foreground">Posting as</p>
+            <p className="text-sm font-medium text-foreground truncate">
+              {profile?.full_name || "You"}
+              {profile?.username && <span className="text-muted-foreground font-normal"> · @{profile.username}</span>}
+            </p>
+          </div>
+        </div>
+
         <div className="p-6 space-y-5 border-b border-border">
-          <div className="grid sm:grid-cols-[1fr_220px] gap-4">
-            <div className="space-y-2">
+          <div className="grid sm:grid-cols-2 lg:grid-cols-[1fr_200px_200px] gap-4">
+            <div className="space-y-2 sm:col-span-2 lg:col-span-1">
               <Label htmlFor="title">Title</Label>
               <Input id="title" name="title" required maxLength={200} placeholder="e.g. How do I implement JWT auth in Node.js?" />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="department" className="flex items-center gap-1.5">
+                <Building2 className="size-3.5" /> Department
+              </Label>
+              <Select value={department} onValueChange={setDepartment}>
+                <SelectTrigger id="department"><SelectValue placeholder="Choose…" /></SelectTrigger>
+                <SelectContent>
+                  {DEPARTMENTS.map((d) => <SelectItem key={d.id} value={d.id}>{d.name}</SelectItem>)}
+                </SelectContent>
+              </Select>
             </div>
             <div className="space-y-2">
               <Label htmlFor="category">Category</Label>
