@@ -192,7 +192,7 @@ export default function Auth() {
                     <Label htmlFor="si-password">Password</Label>
                     <button type="button" onClick={onForgot} className="text-xs text-accent hover:underline">Forgot?</button>
                   </div>
-                  <Input id="si-password" name="password" type="password" required autoComplete="current-password" />
+                  <PasswordInput id="si-password" name="password" required autoComplete="current-password" />
                 </div>
                 <Button type="submit" disabled={busy} className="w-full">{busy ? "Signing in…" : "Sign in"}</Button>
               </form>
@@ -274,12 +274,12 @@ export default function Auth() {
 
                   <div className="space-y-2">
                     <Label htmlFor="su-password">Password</Label>
-                    <Input id="su-password" name="password" type="password" required minLength={8} autoComplete="new-password" />
+                    <PasswordInput id="su-password" name="password" required minLength={8} autoComplete="new-password" />
                     <p className="text-xs text-muted-foreground">At least 8 characters.</p>
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="su-confirm">Confirm password</Label>
-                    <Input id="su-confirm" name="confirmPassword" type="password" required minLength={8} autoComplete="new-password" />
+                    <PasswordInput id="su-confirm" name="confirmPassword" required minLength={8} autoComplete="new-password" />
                   </div>
 
                   <div className="flex gap-2">
