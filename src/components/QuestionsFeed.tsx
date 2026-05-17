@@ -24,8 +24,7 @@ export function QuestionsFeed({ filters }: { filters: FeedFilters }) {
           id,title,body,tags,view_count,created_at,
           author:profiles!questions_author_id_fkey(full_name,username),
           category:categories(name,slug),
-          answers(id,is_accepted),
-          votes:votes!votes_target_id_fkey(value,target_type)
+          answers(id,is_accepted)
         `)
         .limit(50);
       if (filters.search) query = query.ilike("title", `%${filters.search}%`);
@@ -43,15 +42,26 @@ export function QuestionsFeed({ filters }: { filters: FeedFilters }) {
       const { data, error } = await query;
       if (error) { console.error(error); setLoading(false); return; }
 
+      const ids = (data ?? []).map((q: any) => q.id);
+      const voteMap = new Map<string, number>();
+      if (ids.length) {
+        const { data: votes } = await supabase
+          .from("votes")
+          .select("target_id,value")
+          .eq("target_type", "question")
+          .in("target_id", ids);
+        for (const v of votes ?? []) {
+          voteMap.set(v.target_id, (voteMap.get(v.target_id) ?? 0) + (v.value === "up" ? 1 : -1));
+        }
+      }
+
       const mapped: QuestionRow[] = (data ?? []).map((q: any) => {
-        const qVotes = (q.votes ?? []).filter((v: any) => v.target_type === "question");
-        const vote_count = qVotes.reduce((s: number, v: any) => s + (v.value === "up" ? 1 : -1), 0);
         const answers = q.answers ?? [];
         return {
           id: q.id, title: q.title, body: q.body, tags: q.tags ?? [],
           view_count: q.view_count, created_at: q.created_at,
           author: q.author, category: q.category,
-          vote_count,
+          vote_count: voteMap.get(q.id) ?? 0,
           answer_count: answers.length,
           has_accepted: answers.some((a: any) => a.is_accepted),
         };
