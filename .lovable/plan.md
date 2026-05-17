@@ -1,20 +1,35 @@
-# Improve Ask Question page
+# Show department and author on Ask Question page
 
-## Changes
+## Changes (UI only, `src/pages/AskQuestion.tsx`)
 
-1. **Remove the Tags field** from `src/pages/AskQuestion.tsx` (label, input, and the `tags` parsing logic). Insert questions with `tags: []`.
+1. **Read-only "Posting as" strip** at the top of the form card:
+   - Avatar (initials fallback) + full name from `profile.full_name`
+   - Subtle muted line: `@username` if present
+   - Pulled from `useAuth().profile` — no extra fetch.
 
-2. **Redesign the question composition area** for a more polished, focused writing experience:
-   - Wrap the form in a cleaner two-section card: a compact "Meta" row (Title + Category side-by-side on desktop, stacked on mobile) and a large "Details" section for the body.
-   - Make the body `Textarea` taller (min ~320px), with a subtle inner background, monospace-friendly padding, and a live character counter (e.g. `120 / 8000`).
-   - Add a small helper toolbar above the textarea with formatting hints (bold, code, link — as plain markdown hint chips, not active buttons) and a "Markdown supported" note.
-   - Replace the plain header with a richer intro card: icon + title + 3 short tips ("Be specific", "Show what you tried", "Explain expected outcome").
-   - Sticky footer action bar inside the form: Cancel (ghost) on the left, Post question (primary) on the right, with a subtle top border.
-   - Use semantic tokens only (`bg-card`, `border-border`, `text-muted-foreground`, `text-primary`).
+2. **Meta row becomes a 3-column grid** (stacks on mobile):
+   ```
+   [ Title (flex) ] [ Department ] [ Category ]
+   ```
+   - **Department** — new required `Select` populated from a static list of ATC ICT departments (e.g. Information Technology, Computer Science, Software Engineering, Networking, Data Science, Other). Stored in component state `departmentId`.
+   - **Category** — unchanged.
+
+3. **Validation**
+   - Extend the zod schema with `department: z.string().min(1, "Pick a department")`.
+   - Block submit with a toast if missing.
+
+4. **Persistence**
+   - Save the chosen department into the existing `questions.tags` array as a single tag like `dept:<slug>` so no schema change is needed (column is `text[] not null default {}`).
+   - Keep `tags: [\`dept:\${departmentId}\`]` on insert.
+
+## Out of scope
+
+- No DB migration.
+- No changes to feed/filtering by department in this pass (can be added later by filtering `tags` with `contains ['dept:xxx']`).
+- No changes to other pages.
 
 ## Technical notes
 
-- File touched: `src/pages/AskQuestion.tsx` only.
-- Remove `tags` from the zod schema and from the insert payload (pass empty array since the column is `not null` with default `{}`).
-- Add `useState` for body length to drive the counter.
-- No new dependencies; use existing lucide icons (`Lightbulb`, `Bold`, `Code`, `Link`).
+- Use existing `Select`, `Label`, semantic tokens.
+- Use `Avatar` from `@/components/ui/avatar` for the user chip.
+- Departments are a hard-coded const in the file for now.
