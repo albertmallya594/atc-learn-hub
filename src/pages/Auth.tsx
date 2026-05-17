@@ -14,6 +14,17 @@ import atcLogo from "@/assets/atc-logo.png";
 
 type AccountType = "atc_student" | "atc_staff" | "new_student" | "external_student" | "guest";
 
+const DEPARTMENTS = [
+  "Automotive Engineering Department",
+  "Civil Engineering Department",
+  "Department of Applied Sciences and Social Studies",
+  "Electrical Engineering Department",
+  "Information And Communication Technology",
+  "Mechanical Engineering Department",
+  "Transportation Engineering Department",
+  "Vocational Education and Training Department",
+] as const;
+
 const ACCOUNT_TYPES: { value: AccountType; label: string }[] = [
   { value: "atc_student", label: "ATC Student" },
   { value: "atc_staff", label: "ATC Staff" },
