@@ -45,15 +45,29 @@ export default function QuestionDetail() {
       supabase.from("answers").select(`
         id,body,created_at,is_accepted,author_id,
         author:profiles!answers_author_id_fkey(full_name),
-        votes:votes!votes_target_id_fkey(value,user_id,target_type),
         comments(id,body,created_at,author_id,author:profiles!comments_author_id_fkey(full_name))
       `).eq("question_id", id).order("is_accepted", { ascending: false }).order("created_at", { ascending: true }),
     ]);
     setQ(ques as any);
     setQVotes(vts ?? []);
+
+    const answerIds = (ans ?? []).map((a: any) => a.id);
+    let votesByAnswer = new Map<string, { value: "up" | "down"; user_id: string }[]>();
+    if (answerIds.length) {
+      const { data: aVotes } = await supabase
+        .from("votes")
+        .select("target_id,value,user_id")
+        .eq("target_type", "answer")
+        .in("target_id", answerIds);
+      for (const v of aVotes ?? []) {
+        const arr = votesByAnswer.get(v.target_id) ?? [];
+        arr.push({ value: v.value, user_id: v.user_id });
+        votesByAnswer.set(v.target_id, arr);
+      }
+    }
     const mapped = (ans ?? []).map((a: any) => ({
       ...a,
-      votes: (a.votes ?? []).filter((v: any) => v.target_type === "answer"),
+      votes: votesByAnswer.get(a.id) ?? [],
     }));
     setAnswers(mapped);
   }, [id]);
