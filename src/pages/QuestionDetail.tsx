@@ -6,7 +6,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { VoteControl } from "@/components/VoteControl";
-import { CheckCircle2, Trash2, MessageCircle } from "lucide-react";
+import { CheckCircle2, Trash2, MessageCircle, Trophy } from "lucide-react";
 import { initials, formatRelative } from "@/lib/format";
 import { toast } from "sonner";
 
@@ -168,8 +168,36 @@ export default function QuestionDetail() {
       <section>
         <h2 className="font-display text-xl text-primary mb-3">{answers.length} {answers.length === 1 ? "Answer" : "Answers"}</h2>
         <div className="space-y-4">
-          {answers.map((a) => (
-            <div key={a.id} className={`card-elegant p-5 ${a.is_accepted ? "ring-1 ring-success/40 bg-success/5" : ""}`}>
+          {(() => {
+            const scored = answers.map((a) => ({ id: a.id, score: tally(a.votes) }));
+            const accepted = answers.find((a) => a.is_accepted);
+            let bestId: string | null = null;
+            let bestReason: "accepted" | "voted" | null = null;
+            if (accepted) { bestId = accepted.id; bestReason = "accepted"; }
+            else if (scored.length) {
+              const sorted = [...scored].sort((a, b) => b.score - a.score);
+              if (sorted[0].score >= 2 && (sorted.length === 1 || sorted[0].score > sorted[1].score)) {
+                bestId = sorted[0].id; bestReason = "voted";
+              }
+            }
+            return answers.map((a) => {
+              const isBest = a.id === bestId;
+              const reason = isBest ? bestReason : null;
+              const ringClass = isBest
+                ? reason === "accepted"
+                  ? "ring-2 ring-success/50 bg-gradient-to-br from-success/10 to-transparent"
+                  : "ring-2 ring-gold/60 bg-gradient-to-br from-gold/10 to-transparent"
+                : "";
+              return (
+            <div key={a.id} className={`card-elegant p-5 ${ringClass}`}>
+              {isBest && (
+                <div className={`-mt-2 mb-3 inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium ${
+                  reason === "accepted" ? "bg-success/15 text-success border border-success/30" : "bg-gold/15 text-gold border border-gold/30"
+                }`}>
+                  <Trophy className="h-3.5 w-3.5" />
+                  {reason === "accepted" ? "Accepted answer" : "Top voted answer"}
+                </div>
+              )}
               <div className="flex gap-5">
                 <div className="flex flex-col items-center gap-3">
                   <VoteControl targetType="answer" targetId={a.id} initialCount={tally(a.votes)} initialUserVote={myVote(a.votes)} />
@@ -206,7 +234,9 @@ export default function QuestionDetail() {
                 </div>
               </div>
             </div>
-          ))}
+              );
+            });
+          })()}
         </div>
       </section>
 
