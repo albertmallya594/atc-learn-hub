@@ -48,6 +48,18 @@ const slugify = (s: string) => s.toLowerCase().replace(/[^a-z0-9]+/g, "-").repla
 const synthEmail = (fullName: string) =>
   `${slugify(fullName)}-${Math.random().toString(36).slice(2, 8)}@atc-forum.local`;
 
+function Field({ name, label, type = "text", placeholder, maxLength = 150, required = true, autoComplete }: {
+  name: string; label: string; type?: string; placeholder?: string; maxLength?: number; required?: boolean; autoComplete?: string;
+}) {
+  const id = `su-${name}`;
+  return (
+    <div className="space-y-2">
+      <Label htmlFor={id}>{label}</Label>
+      <Input id={id} name={name} type={type} required={required} placeholder={placeholder} maxLength={maxLength} autoComplete={autoComplete} />
+    </div>
+  );
+}
+
 export default function Auth() {
   const navigate = useNavigate();
   const location = useLocation();
