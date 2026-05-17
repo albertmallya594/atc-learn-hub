@@ -14,6 +14,17 @@ import atcLogo from "@/assets/atc-logo.png";
 
 type AccountType = "atc_student" | "atc_staff" | "new_student" | "external_student" | "guest";
 
+const DEPARTMENTS = [
+  "Automotive Engineering Department",
+  "Civil Engineering Department",
+  "Department of Applied Sciences and Social Studies",
+  "Electrical Engineering Department",
+  "Information And Communication Technology",
+  "Mechanical Engineering Department",
+  "Transportation Engineering Department",
+  "Vocational Education and Training Department",
+] as const;
+
 const ACCOUNT_TYPES: { value: AccountType; label: string }[] = [
   { value: "atc_student", label: "ATC Student" },
   { value: "atc_staff", label: "ATC Staff" },
@@ -68,6 +79,7 @@ export default function Auth() {
   const [busy, setBusy] = useState(false);
 
   const [accountType, setAccountType] = useState<AccountType | null>(null);
+  const [department, setDepartment] = useState<string>("");
   const [step, setStep] = useState<1 | 2>(1);
 
   if (user) {
@@ -79,7 +91,7 @@ export default function Auth() {
   const onSignUp = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const fd = new FormData(e.currentTarget);
-    const raw: Record<string, any> = { accountType };
+    const raw: Record<string, any> = { accountType, department };
     fd.forEach((v, k) => { raw[k] = typeof v === "string" ? v : undefined; });
 
     const parsed = signUpSchema.safeParse(raw);
@@ -243,7 +255,19 @@ export default function Auth() {
                   {(accountType === "atc_student" || accountType === "atc_staff") && (
                     <>
                       <Field name="email" type="email" label="Email" placeholder="you@atc.ac.tz" autoComplete="email" />
-                      <Field name="department" label="Department" placeholder="e.g. ICT" />
+                      <div className="space-y-2">
+                        <Label>Department</Label>
+                        <Select value={department} onValueChange={setDepartment}>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Choose your department" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {DEPARTMENTS.map((d) => (
+                              <SelectItem key={d} value={d}>{d}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
                     </>
                   )}
 
