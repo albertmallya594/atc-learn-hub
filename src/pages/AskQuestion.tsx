@@ -22,12 +22,14 @@ const schema = z.object({
 interface Category { id: string; name: string; }
 
 const DEPARTMENTS = [
-  { id: "information-technology", name: "Information Technology" },
-  { id: "computer-science", name: "Computer Science" },
-  { id: "software-engineering", name: "Software Engineering" },
-  { id: "networking", name: "Networking & Cybersecurity" },
-  { id: "data-science", name: "Data Science" },
-  { id: "other", name: "Other" },
+  "Automotive Engineering Department",
+  "Civil Engineering Department",
+  "Department of Applied Sciences and Social Studies",
+  "Electrical Engineering Department",
+  "Information And Communication Technology",
+  "Mechanical Engineering Department",
+  "Transportation Engineering Department",
+  "Vocational Education and Training Department",
 ];
 
 const MAX_BODY = 8000;
@@ -119,7 +121,7 @@ export default function AskQuestion() {
               <Select value={department} onValueChange={setDepartment}>
                 <SelectTrigger id="department"><SelectValue placeholder="Choose…" /></SelectTrigger>
                 <SelectContent>
-                  {DEPARTMENTS.map((d) => <SelectItem key={d.id} value={d.id}>{d.name}</SelectItem>)}
+                  {DEPARTMENTS.map((d) => <SelectItem key={d} value={d}>{d}</SelectItem>)}
                 </SelectContent>
               </Select>
             </div>
