@@ -30,9 +30,16 @@ export function VoteControl({ targetType, targetId, initialCount, initialUserVot
     if (prev === kind) { delta = kind === "up" ? -1 : 1; next = null; }
     else if (prev) { delta = kind === "up" ? 2 : -2; }
     else { delta = kind === "up" ? 1 : -1; }
-    setMy(next); setCount(count + delta);
+    const newCount = count + delta;
+    setMy(next); setCount(newCount);
     const { error } = await castVote(user.id, targetType, targetId, kind);
     if (error) { setMy(prev); setCount(count); toast.error(error.message); }
+    else {
+      const opts = { duration: 1500 };
+      if (next === null) toast(`Vote removed · net ${newCount}`, opts);
+      else if (next === "up") toast.success(`Upvoted · net ${newCount}`, opts);
+      else toast.success(`Downvoted · net ${newCount}`, opts);
+    }
     setBusy(false);
   };
 
