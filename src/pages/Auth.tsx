@@ -91,7 +91,7 @@ export default function Auth() {
   const onSignUp = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const fd = new FormData(e.currentTarget);
-    const raw: Record<string, any> = { accountType };
+    const raw: Record<string, any> = { accountType, department };
     fd.forEach((v, k) => { raw[k] = typeof v === "string" ? v : undefined; });
 
     const parsed = signUpSchema.safeParse(raw);
