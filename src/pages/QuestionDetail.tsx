@@ -231,6 +231,28 @@ export default function QuestionDetail() {
                     ))}
                     {user && <CommentForm onSubmit={(t) => addComment(a.id, t)} />}
                   </div>
+
+                  {(() => {
+                    const ups = a.votes.filter((v) => v.value === "up").length;
+                    const downs = a.votes.filter((v) => v.value === "down").length;
+                    const net = ups - downs;
+                    return (
+                      <div className="mt-3 pt-3 border-t border-border/60 flex flex-wrap items-center justify-end gap-2 text-xs text-muted-foreground tabular-nums">
+                        <span className="text-success">▲ {ups} {ups === 1 ? "upvote" : "upvotes"}</span>
+                        <span>·</span>
+                        <span className="text-destructive">▼ {downs} {downs === 1 ? "downvote" : "downvotes"}</span>
+                        <span>·</span>
+                        <span className="font-medium text-foreground">net {net > 0 ? `+${net}` : net}</span>
+                        {isBest && (
+                          <span className={`ml-2 rounded-full px-2 py-0.5 text-[10px] border ${
+                            reason === "accepted" ? "bg-success/10 text-success border-success/30" : "bg-gold/10 text-gold border-gold/30"
+                          }`}>
+                            {reason === "accepted" ? "Highlighted because accepted" : "Highlighted by votes"}
+                          </span>
+                        )}
+                      </div>
+                    );
+                  })()}
                 </div>
               </div>
             </div>
