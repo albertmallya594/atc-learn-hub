@@ -8,7 +8,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { ArrowRight, ScanSearch, Users, BookOpen, MessageSquareQuote } from "lucide-react";
 
 export default function Index() {
-  const { user } = useAuth();
+  const { user, isAdmin } = useAuth();
   const [params] = useSearchParams();
   const [stats, setStats] = useState({ q: 0, a: 0, u: 0 });
   const [sort, setSort] = useState<"newest" | "votes" | "unanswered">("newest");
@@ -63,11 +63,11 @@ export default function Index() {
       </section>
 
       {/* Stats */}
-      <section className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+      <section className={`grid grid-cols-1 gap-4 ${isAdmin ? "sm:grid-cols-3" : "sm:grid-cols-2"}`}>
         {[
           { label: "Questions", value: stats.q, icon: MessageSquareQuote },
           { label: "Answers shared", value: stats.a, icon: BookOpen },
-          { label: "Active members", value: stats.u, icon: Users },
+          ...(isAdmin ? [{ label: "Active members", value: stats.u, icon: Users }] : []),
         ].map((s) => (
           <div key={s.label} className="card-elegant p-5 flex items-center gap-4">
             <div className="grid h-11 w-11 place-items-center rounded-md bg-primary/5 text-primary">

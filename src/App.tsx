@@ -42,7 +42,7 @@ const App = () => (
               <Route path="/category/:slug" element={<CategoryPage />} />
               <Route path="/tags" element={<Tags />} />
               <Route path="/tags/:tag" element={<TagPage />} />
-              <Route path="/members" element={<Members />} />
+              <Route path="/members" element={<ProtectedRoute adminOnly><Members /></ProtectedRoute>} />
               <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
               <Route path="/notifications" element={<ProtectedRoute><Notifications /></ProtectedRoute>} />
               <Route path="/admin" element={<ProtectedRoute adminOnly><Admin /></ProtectedRoute>} />
