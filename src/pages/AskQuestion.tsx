@@ -10,7 +10,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { toast } from "sonner";
-import { Lightbulb, Bold, Code, Link as LinkIcon, Sparkles, Building2 } from "lucide-react";
+import { Lightbulb, Bold, Code, Link as LinkIcon, BadgeHelp, Building2 } from "lucide-react";
 
 const schema = z.object({
   title: z.string().trim().min(10, "Title must be at least 10 chars").max(200),
@@ -78,7 +78,7 @@ export default function AskQuestion() {
     <div className="container max-w-3xl py-8 space-y-6">
       <div className="card-elegant p-6 flex gap-4 items-start">
         <div className="rounded-xl bg-primary/10 text-primary p-3 shrink-0">
-          <Sparkles className="size-5" />
+          <BadgeHelp className="size-5" />
         </div>
         <div className="space-y-2">
           <h1 className="font-display text-2xl text-primary leading-tight">Ask a question</h1>
