@@ -8,16 +8,27 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { toast } from "sonner";
-import { Lightbulb, Bold, Code, Link as LinkIcon, Sparkles } from "lucide-react";
+import { Lightbulb, Bold, Code, Link as LinkIcon, Sparkles, Building2 } from "lucide-react";
 
 const schema = z.object({
   title: z.string().trim().min(10, "Title must be at least 10 chars").max(200),
   body: z.string().trim().min(20, "Provide more detail (min 20 chars)").max(8000),
   category_id: z.string().uuid("Pick a category"),
+  department: z.string().min(1, "Pick a department"),
 });
 
 interface Category { id: string; name: string; }
+
+const DEPARTMENTS = [
+  { id: "information-technology", name: "Information Technology" },
+  { id: "computer-science", name: "Computer Science" },
+  { id: "software-engineering", name: "Software Engineering" },
+  { id: "networking", name: "Networking & Cybersecurity" },
+  { id: "data-science", name: "Data Science" },
+  { id: "other", name: "Other" },
+];
 
 const MAX_BODY = 8000;
 
