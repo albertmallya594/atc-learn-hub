@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Search, Bell, LogIn, LogOut, User as UserIcon } from "lucide-react";
+import { Search, Bell, LogIn, LogOut, User as UserIcon, Building2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { SidebarTrigger } from "@/components/ui/sidebar";
@@ -11,6 +11,8 @@ import {
   DropdownMenuSeparator, DropdownMenuTrigger, DropdownMenuLabel,
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { DEPARTMENTS } from "@/lib/departments";
 import { initials } from "@/lib/format";
 import atcLogo from "@/assets/atc-logo.png";
 
@@ -18,6 +20,7 @@ export function AppHeader() {
   const { user, profile, signOut } = useAuth();
   const navigate = useNavigate();
   const [q, setQ] = useState("");
+  const [dept, setDept] = useState<string>("all");
   const [unread, setUnread] = useState(0);
 
   useEffect(() => {
@@ -37,7 +40,11 @@ export function AppHeader() {
 
   const submit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (q.trim()) navigate(`/questions?q=${encodeURIComponent(q.trim())}`);
+    const params = new URLSearchParams();
+    if (q.trim()) params.set("q", q.trim());
+    if (dept !== "all") params.set("dept", dept);
+    const qs = params.toString();
+    if (qs) navigate(`/questions?${qs}`);
   };
 
   return (
@@ -47,13 +54,27 @@ export function AppHeader() {
         <img src={atcLogo} alt="ATC Department of ICT logo" className="h-8 w-8 object-contain rounded-md bg-white/95 p-0.5" />
         <span className="font-display text-sm">ATC Forum</span>
       </Link>
-      <form onSubmit={submit} className="relative hidden flex-1 max-w-xl md:block">
-        <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-        <Input
-          value={q} onChange={(e) => setQ(e.target.value)}
-          placeholder="Search questions, tags, topics…"
-          className="pl-9 bg-secondary/50 border-border focus-visible:ring-accent"
-        />
+      <form onSubmit={submit} className="hidden flex-1 max-w-2xl md:flex items-center gap-2">
+        <div className="relative flex-1">
+          <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+          <Input
+            value={q} onChange={(e) => setQ(e.target.value)}
+            placeholder="Search questions, tags, topics…"
+            className="pl-9 bg-secondary/50 border-border focus-visible:ring-accent"
+          />
+        </div>
+        <Select value={dept} onValueChange={setDept}>
+          <SelectTrigger className="w-[200px] bg-secondary/50 border-border" aria-label="Filter by department">
+            <Building2 className="h-4 w-4 text-muted-foreground mr-1" />
+            <SelectValue placeholder="All departments" />
+          </SelectTrigger>
+          <SelectContent className="max-w-[280px]">
+            <SelectItem value="all">All departments</SelectItem>
+            {DEPARTMENTS.map((d) => (
+              <SelectItem key={d} value={d}>{d}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </form>
       <div className="ml-auto flex items-center gap-2">
         {user ? (
