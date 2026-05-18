@@ -1,15 +1,16 @@
-# Department filter in search bar
+# Export System Architecture Diagram to PDF
 
-Add an ATC department dropdown next to the header search input. Selecting a department filters the Questions feed to only questions tagged with that department.
+Render the existing Mermaid diagram at `/mnt/documents/System_Architecture.mmd` into a PDF for submission.
 
-## What changes
+## Steps
 
-- **Header search** (`src/components/layout/AppHeader.tsx`): add a compact `Select` of the 8 ATC departments + "All departments" beside the search input. Submitting navigates to `/questions?q=...&dept=<name>` (either param optional).
-- **Questions page** (`src/pages/Questions.tsx`): read the `dept` URL param and pass it to `QuestionsFeed` as a `tag` filter using the existing `dept:<name>` convention. Show the active department in the subheading and as a removable chip.
-- **Shared list** (`src/lib/departments.ts`): extract the 8 departments to one constant so AskQuestion, Auth, and header all share it.
+1. Use `@mermaid-js/mermaid-cli` (mmdc) via `npx` to render the `.mmd` file to a high-resolution PDF.
+2. Save the output as `/mnt/documents/System_Architecture.pdf`.
+3. Visually QA the PDF by converting it to an image and inspecting for clipped nodes, overflow, or unreadable text. Re-render with adjusted width/scale if needed.
+4. Deliver the PDF as a downloadable artifact.
 
-## Technical notes
+## Technical details
 
-Questions already store the chosen department as a tag entry `dept:<Department Name>` (see `AskQuestion.tsx`). `QuestionsFeed` already supports `filters.tag` via `.contains("tags", [tag])`, so no DB changes are needed — the header just needs to pass `tag: "dept:<name>"`.
-
-The Select uses a sentinel value `"all"` for "All departments" (Radix Select disallows empty string values). Submitting only appends `dept=` when a real department is selected.
+- Command: `npx -y @mermaid-js/mermaid-cli -i /mnt/documents/System_Architecture.mmd -o /mnt/documents/System_Architecture.pdf -b white --pdfFit`
+- If mmdc fails (puppeteer/chromium issues in sandbox), fall back to: render to PNG/SVG first, then convert SVG to PDF with `rsvg-convert` or wrap PNG into a PDF with reportlab.
+- QA: `pdftoppm -jpeg -r 150 /mnt/documents/System_Architecture.pdf /tmp/qa` and inspect pages.
